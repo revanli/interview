@@ -23,7 +23,7 @@
 * 类型转换
   在js中，类型转换只有3种情况，分别是转换为布尔值，转换为数字，转换为字符串
 
-  ![类型转换表格]('./image/transform.png?raw=true')
+  ![类型转换表格](./image/transform.png?raw=true '类型转换表格')
 
   在条件判断时，除了undefined, null, false, NaN, '', 0, -0其他所有值都转为true, 包括所有对象
   对象在转换类型的时候，会调用内置的[[toPrimitive]]函数
@@ -31,4 +31,4 @@
 * this
   首先，new 的方式优先级最高，接下来是 bind 这些函数，然后是 obj.foo() 这种调用方式，最后是 foo 这种调用方式，同时，箭头函数的 this 一旦被绑定，就不会再被任何方式所改变
 
-  ![this]('./image/this.png?raw=true')
+  ![this](./image/this.png?raw=true 'this')
