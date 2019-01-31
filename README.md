@@ -3,8 +3,8 @@
 - html（html相关知识点）
 - css（css相关知识点）
 - javascript（javascript相关知识点）
-- http（网络协议相关题目）
-- algorithm（相关算法题）
+- http（网络协议相关题目）
+- algorithm（相关算法题）
 - frame（框架相关知识点）
 - project（总结项目）
 - automation（自动化）
