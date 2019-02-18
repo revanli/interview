@@ -2,7 +2,7 @@
   [阮一峰排序](https://javascript.ruanyifeng.com/library/sorting.html#toc12)
 
 * 排序的通用函数  
-  ```javascript
+  ```javasctipt
   function swap(i, j, array) {
     var temp = array[j]
     array[j] = array[i]
