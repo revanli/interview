@@ -1,24 +1,17 @@
 #### JS基础知识点
 
 * 原始类型有哪几种？null是对象嘛？
-
-  i. 存在6中原始类型：boolean, null, undefined, number, string, symbol
-
-  ii. null不是对象类型，虽然typeof null会输出object, 这是因为在js的最初版本中使用的是32位系统，
+  - 存在6中原始类型：boolean, null, undefined, number, string, symbol
+  - null不是对象类型，虽然typeof null会输出object, 这是因为在js的最初版本中使用的是32位系统，
   为了性能考虑使用低位存储变量的类型信息，000开头代表是对象，然而null表示为全零，所以将它错误的判断为object
 
-
 * 对象类型和原始类型的不同之处？函数参数是对象会发生什么问题？
-
-  i. 在js中，除了原始类型其他的都是对象类型，原始类型存储的是值，对象类型存储的是地址（指针），当创建一个对象类型的时候，内存中会储存这个值，这个值有一个地址（指针），当把变量赋值给另一个变量时，进行数据修改时，另个变量的值都会发生改变
-
-  ii. 函数传参是传递对象指针的副本，如果重新为参数对象赋值另一个对象，则这个参数对象有了一个全新的地址（指针），则两个变量的值就会不同
+  - 在js中，除了原始类型其他的都是对象类型，原始类型存储的是值，对象类型存储的是地址（指针），当创建一个对象类型的时候，内存中会储存这个值，这个值有一个地址（指针），当把变量赋值给另一个变量时，进行数据修改时，另个变量的值都会发生改变
+  - 函数传参是传递对象指针的副本，如果重新为参数对象赋值另一个对象，则这个参数对象有了一个全新的地址（指针），则两个变量的值就会不同
 
 * typeof是否能正确判断类型？instanceof 能正确判断对象的原理是什么？
-
-  i. typeof对于原始类型来说，除了null都可以显示正确的类型，对于对象来说来说，除了函数都会显示object, 所以typeof并不能判断变量是什么类型
-
-  ii. instanceof 内部机制是通过原型链来判断的, 判断某个对象是否是某个构造函数的实例，判断原始类型的可以借助Symbol.hasInstance 属性判断该对象是否某个构造函数的实例
+  - typeof对于原始类型来说，除了null都可以显示正确的类型，对于对象来说来说，除了函数都会显示object, 所以typeof并不能判断变量是什么类型
+  - instanceof 内部机制是通过原型链来判断的, 判断某个对象是否是某个构造函数的实例，判断原始类型的可以借助Symbol.hasInstance 属性判断该对象是否某个构造函数的实例
   ```javascript
   class MyClass {
     [Symbol.hasInstance](x) {
@@ -30,23 +23,31 @@
   ```
 
 * 类型转换
-
-  在js中，类型转换只有3种情况，分别是转换为布尔值，转换为数字，转换为字符串
-
+  - 在js中，类型转换只有3种情况，分别是转换为布尔值，转换为数字，转换为字符串
   ![类型转换表格](./image/transform.png?raw=true '类型转换表格')
+  - 在条件判断时，除了undefined, null, false, NaN, '', 0, -0其他所有值都转为true, 包括所有对象  
+  - -、*、/、%：一律转换为数值后计算
+  - +:
+    - 数字 + 字符串 = 字符串
+    - 数字 + 对象，优先调用valueOf -> toString
+    - 数字 + boolean / null = 数字
+    - 数字 + undifined == NaN
+  - [1].toString() === '1'
+  - {}.toString() === '[object object]'
+  - NaN !== NaN 、+undifined === NaN
 
-  在条件判断时，除了undefined, null, false, NaN, '', 0, -0其他所有值都转为true, 包括所有对象  
-  对象在转换类型的时候，会调用内置的[[toPrimitive]]函数
+* 类型判断
+  - null: String(null)
+  - string / number / boolean / undefined / function: typeof
+  - Array / Date / RegExp Error: toString后根据[object XXX]判断
 
 * this
-
-  首先，new 的方式优先级最高，接下来是 bind 这些函数，然后是 obj.foo() 这种调用方式，最后是 foo 这种调用方式，同时，箭头函数的 this 一旦被绑定，就不会再被任何方式所改变
-
+  - this的优先级：首先，new 的方式优先级最高，接下来是 bind 这些函数，然后是 obj.foo() 这种调用方式，最后是 foo 这种调用方式，同时，箭头函数的 this 一旦被绑定，就不会再被任何方式所改变
   ![this](./image/this.png?raw=true 'this')
 
 * 闭包
-
-  可以简单的理解为：函数A内部有一个函数B，函数B可以访问到函数A中的变量，那么函数B就是闭包, 闭包的意义就是让我们可以间接的访问到函数内的变量
+  - 可以简单的理解为：函数A内部有一个函数B，函数B可以访问到函数A中的变量，那么函数B就是闭包, 闭包的意义就是让我们可以间接的访问到函数内的变量
+  - 复杂的说，父函数被销毁的情况下，返回的子函数[[scope]]仍保留了父级的作用域链，可以继续访问父级的变量对象。
 
 * 使用闭包解决var定义函数的问题
 
@@ -60,6 +61,7 @@
   这里会输出5个6
 
   i. 方案一：
+  变量可以通过函数参数形式传入，避免使用默认的[[scope]]向上查找
   ```javascript
   for (var i = 1; i <= 5; i++) {
     ;(function(j) {
@@ -69,7 +71,9 @@
     })(i)
   }
   ```
+
   ii. 方案二：
+  通过setTimeout包裹，通过第三个参数传入
   ```javascript
   for (var i = 1; i <= 5; i++) {
     setTimeout(
@@ -81,8 +85,10 @@
     )
   }
   ```
+
   iii. 方案三：
-  ```
+  使用块级作用域，让变量变为自己上下文的属性，避免共享
+  ```javascript
   for (let i = 1; i <= 5; i++) {
     setTimeout(function timer() {
       console.log(i)
@@ -91,17 +97,21 @@
   ```
 
 * 什么是浅拷贝？如何实现浅拷贝？什么是深拷贝？如何实现深拷贝？
+  - 浅拷贝: 以赋值的形式拷贝引用对象，仍指向同一个地址，修改时原对象也会受到影响
+    - Object.assign()
+    - 展开运算符(...)
+  - 深拷贝：完全拷贝一个新对象，修改时原对象不再受到任何影响
+    - JSON.parse(JSON.stringify(object))
+      - 具有循环引用的对象时，报错
+      - 当值为函数或undefined时，无法拷贝
+    - 递归进行逐一赋值 
 
-  对象类型在赋值的时候其实是复制了地址，从而导致改变了一方其他地方都被改变的情况，为了避免这个问题，可以使用浅拷贝来解决这个问题
-  i. 浅拷贝：Object.assign() 拷贝所有属性到新对象，属性是对象的话拷贝的是地址, 还可以用...展开运算符实现浅拷贝  
-  ii. 深拷贝：通常可以通过JSON.parse(JSON.stringify(object))来解决，这种方法的局限性在于：会忽略undifined, symbol, 不能序列化函数，不能解决循环引用的对象  
+* 什么是原型？如何理解原型链？(补充资料: 王福朋的原型和闭包javascript)
 
-* 什么是原型？如何理解原型链？(补充资料: 王福朋的原型和闭包javascript)
+  每个js对象都有__proto__属性，可以通过这个属性找到一个原型对象，原型对象的constructor属性指向构造函数，构造函数又通过prototype属性指向原型
+  （除了Function.prototype.bind()就没有这个属性）
 
-  每个js对象都有__proto__属性，可以通过这个属性找到一个原型对象，原型的constructor属性指向构造函数，构造函数又通过prototype属性指向原型
-  除了Function.prototype.bind()就没有这个属性
-
-  ![原型链](./image/prototype_chain.png?raw=true '原型链')
+  ![原型链](./image/prototype-chain.png?raw=true '原型链')
 
   原型链就是多个对象通过__proto__的方式连接起来
 
@@ -111,16 +121,15 @@
   - 对象的__proto__属性指向原型，__proto__将对象和原型链接起来组成原型链
 
 
-* 什么是提升？什么是暂时性死区？var, let, const区别？
-
-  在js中可以使用未被声明的变量，这种情况就叫提升，并且提升的是声明，js中会把要使用的变量声明提升。  
-  var声明的变量会发生提升情况，不仅变量会提升而且函数也会提升，函数提升的优先级还优于变量提升  
-  在全局作用域使用let和const声明变量，变量并不会挂载到window上，let和const因为存在暂时性死区，不能在声明之前就使用变量，let和const作用基本一致，但是后者声明的变量不能再次赋值
+* 什么是提升？什么是暂时性死区？var, let, const区别？
+  - 在js中可以使用未被声明的变量，这种情况就叫提升，并且提升的是声明，js中会把要使用的变量声明提升。  
+  - var声明的变量会发生提升情况，不仅变量会提升而且函数也会提升，函数提升的优先级还优于变量提升  
+  - 在全局作用域使用let和const声明变量，变量并不会挂载到window上，let和const因为存在暂时性死区，不能在声明之前就使用变量，let和const作用基本一致，但是后者声明的变量不能再次赋值
   
 
 * 原型如何实现继承？Class如何实现继承？Class本质是什么？
 
-  在js中不存在类，class只是语法糖，本质还是函数  
+  在JS中，继承通常指的是原型链继承，也就是说通过**指定原型**，并可以通过**原型链继承原型上的属性或者方法**
 
   - 组合继承
   ```javascript
@@ -131,6 +140,7 @@
     console.log(this.val)
   }
   function Child(value) {
+    // 继承父类属性
     Parent.call(this, value)
   }
   Child.prototype = new Parent()
@@ -156,6 +166,7 @@
   function Child(value) {
     Parent.call(this, value)
   }
+  // Object.create(proto, [propertiesObj])
   Child.prototype = Object.create(Parent.prototype, {
     constructor: {
       value: Child,
@@ -193,6 +204,29 @@
   child instanceof Parent // true
   ```
   class实现继承的核心是extends继承父类，并且在子类构造函数中必须调用super，可以看成Parent.call(this, value), class的本质还是函数
+
+  - 补充。圣杯模式
+  ```javascript
+  function inherit(Target, Origin){
+    function F() {};
+    F.prototype = Origin.prototype;
+    Target.prototype = new F();
+    Target.prototype.constuctor = Target;  // constuctor归位
+    Target.prototype.uber = Origin.prototype; // 信息储备，想知道继承自谁，先记录下来
+  }
+
+  // 高端的写法：利用闭包的私有化变量特性
+  var inherit = (function(){
+    var F = function(){};      // 闭包，将F当作私有变量，F在执行完后就会销毁，但是在传递原型的断开映射功能已经实现
+    return function (Target, Origin){
+      F.prototype = Origin.prototype;
+      Target.prototype = new F();
+      Target.prototype.constuctor = Target;
+      Target.prototype.uber = Origin.prototype;
+    }
+  }())
+  inherit(son, father)
+  ```
 
   
 * 为什么要使用模块化？哪几种方式可以实现模块化，各有什么特点？  
@@ -242,7 +276,7 @@
   ```
   exports 和 module.exports 享有相同的地址，通过改变对象的属性值可以对两者都起效，但是如果直接对exports赋值会导致两者不再指向供一个内存地址，修改并不会对module.exports起效
 
-  - ES Module
+  - ES Module（import/exports）
   ES Module是原生实现的模块化方案，与CommonJS的区别是  
   i. CommonJS支持动态导入，也就是require(${path}/xx.js)，后者目前不支持  
   ii. CommonJS是同步导入，因为在服务端，文件都在本地，同步导入即使卡主主线程影响也不大，后者是异步导入，主要用户浏览器，需要下载文件，如果采用同步导入对渲染会有很大的影响  
@@ -288,15 +322,136 @@
 
 * 手写Promise(重要)
 
--------
-#### Event Loop 
--------
+* 节流和防抖
+  - 防抖(debounce): 将多次高频操作优化为只在最后一次执行，场景：用户输入，在输入完成后做校验
+  - 节流(throttle): 将高频操作优化为低频操作，每隔一段时间(100~500ms)执行一次，场景：滚动条时间或者resize事件
+  ```javascript
+  // 节流
+  const throttle = (func, wait, immediate) => {
+    let timer = null
+    let callNow = true
 
-* 进程与线程区别？JS单线程带来的好处？  
-  进程描述了CPU在运行指令及加载和保存上下文所需的时间，放在应用上来说就代表了一个程序。线程是进程中的更小单位，描述了执行一段指令所需的时间。JS是单线程运行的，可以节省内存，节省上下文切换时间，没有锁的问题的好处，
+    return function() {
+      let args = arguments
+      let context = this
 
-* 异步代码执行顺序？解释一下Event Loop?  
-  遇到异步代码时，会被挂起并在需要执行的时候加入到Task队列中，一旦执行栈为空，Event Loop就会从Task队列中拿出需要执行的代码并放入执行栈中执行，所以本质上JS中的异步还是同步行为，不同的任务源会被分配到不同的Task队列中，任务源分为微任务和宏任务，Event Loop执行顺序为： 1、执行同步代码，属于宏任务 2、执行同步代码后，执行栈为空，查询是否有异步代码需要执行 3、执行微任务 4、执行完微任务，如有必要则渲染页面 5、开启下一轮Event Loop，执行宏任务中的异步代码。微任务包括 process.nextTick(), promise, MutationObserver，宏任务包括script, setTimeout, setInterval, setInmediate, I/O, UI rendering, 浏览器会执行一个宏任务，接下来有异步任务才执行微任务
+      if (callNow) {
+        func.apply(context, args)
+        callNow = true
+      }
+
+      if (!timer) {
+        timer = setTimeout(() => {
+          func.apply(context, args)
+          timer = null
+        }, wait)
+      }
+    }
+  }
+
+  // 防抖
+  const debounce = (func, wait, immediate) => {
+    let timer = null
+
+    return function () {
+      let args = arguments
+
+      if (immediate && !timer) {
+        func.apply(this, args)
+      }
+
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => {
+        func.apply(this, args)
+      }, wait)
+    }
+  }
+  ```
+
+* babel编译原理
+  - babylon将ES6/ES7代码解析为AST
+  - babel-traverse对AST进行遍历转义，得到新的AST
+  - 新AST通过babel-generator转换成ES5
+
+* 数组
+  - slice(start, end): 返回截断后的新数组，不改变原数组
+  - splice(start, number, value...): 返回删除元素组成的数组，value为插入值，改变原数组
+
+* 深克隆
+  ```javascript
+  const isType = (obj, type) => {
+    if (typeof obj !== 'object') return false;
+    const typeString = Object.prototype.toString.call(obj);
+    let flag;
+    switch (type) {
+      case 'Array':
+        flag = typeString === '[object Array]';
+        break;
+      case 'Date':
+        flag = typeString === '[object Date]';
+        break;
+      case 'RegExp':
+        flag = typeString === '[object RegExp]';
+        break;
+      default:
+        flag = false;
+    }
+    return flag;
+  };
+
+  /**
+  * deep clone
+  * @param  {[type]} parent object 需要进行克隆的对象
+  * @return {[type]}        深克隆后的对象
+  */
+  const clone = parent => {
+    // 维护两个储存循环引用的数组
+    const parents = [];
+    const children = [];
+
+    const _clone = parent => {
+      if (parent === null) return null;
+      if (typeof parent !== 'object') return parent;
+
+      let child, proto;
+
+      if (isType(parent, 'Array')) {
+        // 对数组做特殊处理
+        child = [];
+      } else if (isType(parent, 'RegExp')) {
+        // 对正则对象做特殊处理
+        child = new RegExp(parent.source, getRegExp(parent));
+        if (parent.lastIndex) child.lastIndex = parent.lastIndex;
+      } else if (isType(parent, 'Date')) {
+        // 对Date对象做特殊处理
+        child = new Date(parent.getTime());
+      } else {
+        // 处理对象原型
+        proto = Object.getPrototypeOf(parent);
+        // 利用Object.create切断原型链
+        child = Object.create(proto);
+      }
+
+      // 处理循环引用
+      const index = parents.indexOf(parent);
+
+      if (index != -1) {
+        // 如果父数组存在本对象,说明之前已经被引用过,直接返回此对象
+        return children[index];
+      }
+      parents.push(parent);
+      children.push(child);
+
+      for (let i in parent) {
+        // 递归
+        child[i] = _clone(parent[i]);
+      }
+
+      return child;
+    };
+    return _clone(parent);
+  };
+  ```
 
 
 #### 进阶知识点和常考面试题

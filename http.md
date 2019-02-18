@@ -1,5 +1,5 @@
 * 前端异常监控  
-  代码运行错误通常的办法是使用window.onerror拦截报错，对于异步代码，可以使用catch方式捕获错误，async await就使用try catch
+  代码运行错误通常的办法是使用window.onerror拦截报错，对于异步代码，可以使用catch方式捕获错误，同步代码就用async await就使用try catch
 
 * UDP与TCP的区别是什么？  
   UDP协议是面向无连接的，不需要在正式传递数据之前先链接起双方。UDP协议只是数据报文的搬运工，不保证有序且不丢失的传递到对端，并且UDP协议也没有任何控制流量的算法，总的来说UDP相对于TCP更加轻便。  
@@ -19,7 +19,12 @@
   i.客户端发送 Fin 字段告诉服务端，希望关闭连接，客户端处理 Fin wait 1 阶段（终止等待第一阶段）；  
   ii. 服务端收到信号，返回 ack 确认包给客户端，并告诉客户端服务端仍可能有上次的数据未处理完毕，我正在处理中，你仍可以接收我可能发给你客户端的数据，我先处于 close wait状态直至我处理完毕，客户端当前处于终止 Fin wait 1 阶段，进入 Fin wait 2 阶段（终止等待第二阶段）；  
   iii. 服务端在处理完之前的数据后，发送 Fin 信号以及 ack 确认包给客户端，告诉客户端服务端已经处理完毕，已经可以开始关闭连接了；  
-  iv. 客户端收到服务端发来的 Fin 信号后，再次向服务端发送 ack 确认包，告诉服务端自己已经收到关闭命令了，自己正在执行关闭连接的过程，此时客户端处于 Time wait 阶段，等待关闭连接，服务端收到 ack 后立刻就关闭了 TCP 连接，在等待了 2MSL（最长报文段寿命） 后，客户端也关闭了 TCP 连接；
+  iv. 客户端收到服务端发来的 Fin 信号后，再次向服务端发送 ack 确认包，告诉服务端自己已经收到关闭命令了，自己正在执行关闭连接的过程，此时客户端处于 Time wait 阶段，等待关闭连接，服务端收到 ack 后立刻就关闭了 TCP 连接，在等待了 2MSL（最长报文段寿命） 后，客户端也关闭了 TCP 连接；  
+  简易版  
+  - 客户端 -- FIN --> 服务端， FIN—WAIT
+  - 服务端 -- ACK --> 客户端， CLOSE-WAIT
+  - 服务端 -- ACK,FIN --> 客户端， LAST-ACK
+  - 客户端 -- ACK --> 服务端，CLOSED
 
 * 为什么连接的时候要三次握手，关闭的时候要四次握手  
   i.三次握手的过程缺一不可，第一次客户端发送请求，第二次服务端确认连接请求，第三次客户端确认可连接请求，清洗可见上面的 TCP 连接建立过程，其中少一个步骤都无法建立，多一个步骤则造成冗余，降低效率；  
@@ -29,19 +34,53 @@
 * 为什么TCP建立连接需要三次握手，明明2次就可以了  
   因为这是为了防止出现失效的连接请求报文段被服务端接收的情况，从而产生错误。客户端在网络超时的时候会启动超时重传机制再次发送一个请求，如果之前的请求在两端关闭后才到达服务端，服务端端以为客户端又需要建立TCP链接，就会进入等待，造成资源的浪费。
 
+* TCP拥塞处理
+  - 慢开始
+  - 拥塞避免
+  - 快速重传
+  - 快速恢复
+
 * http2 与 http1.X 相比的新特性
+  - **新的二进制格式（Binary Format** HTTP1.x的解析是基于文本。基于文本协议的格式解析存在天然缺陷，文本的表现形式有多样性，要做到健壮性考虑的场景必然很多，二进制则不同，只认0和1的组合。基于这种考虑HTTP2.0的协议解析决定采用二进制格式，实现方便且健壮。
+  - **多路复用（MultiPlexing）** 即连接共享，即每一个request都是是用作连接共享机制的。一个request对应一个id，这样一个连接上可以有多个request，每个连接的request可以随机的混杂在一起，接收方可以根据request的 id将request再归属到各自不同的服务端请求里面。
+  - **header压缩**，如上文中所言， 对前面提到过 HTTP1.x 的header带有大量信息，而且每次都要重复发送，HTTP2.0使用encoder来减少需要传输的header大小，通讯双方各自cache一份header fields表，既避免了重复header的传输，又减小了需要传输的大小。
+  - **服务端推送（server push）** 同SPDY一样，HTTP2.0也具有server push功能。
 
-  **新的二进制格式（Binary Format** HTTP1.x的解析是基于文本。基于文本协议的格式解析存在天然缺陷，文本的表现形式有多样性，要做到健壮性考虑的场景必然很多，二进制则不同，只认0和1的组合。基于这种考虑HTTP2.0的协议解析决定采用二进制格式，实现方便且健壮。
+* 缓存策略：可分为**强缓存**和**协商缓存**
+  - Cache-Control/Expires: 浏览器判断缓存是否过期，未过期时，直接使用强缓存，**Cache-Control的max-age优先级高于Expires**
+  - 缓存已经过期，使用协商缓存
+    - 唯一标识方案：Etag(response携带) & If-None-Match(request携带，上一次返回的Etag)，服务器判断资源是否被修改
+    - 最后一次修改时间：Last-Modified(response) & If-Modified-Since(reques, 上一次返回的Last-Modified)
+      - 如果一致，直接返回304通知浏览器使用缓存
+      - 不一致，服务端返回新资源
+    - Last-Modified缺点
+      - 周期性修改，但内容未变时，会导致缓存失效
+      - 最小粒度到s，s以内的改动无法检测到
+    - Etag的优先级高于Last-Modified
 
-  **多路复用（MultiPlexing）** 即连接共享，即每一个request都是是用作连接共享机制的。一个request对应一个id，这样一个连接上可以有多个request，每个连接的request可以随机的混杂在一起，接收方可以根据request的 id将request再归属到各自不同的服务端请求里面。
+* Websocket
+  websocket是一个持久化的协议，基于http，服务端可以主动push
+  - 兼容
+    - FLASH Socket
+    - 长轮询： 定时发送Ajax
+    - long poll: 发送->有消息再response
+  - 过程
+    - new Websockt(ws://...)
+    - ws.onerror = fn
+    - ws.onclose = fn
+    - ws.onopen = fn
+    - ws.onmessage = fn
+    - ws.send()
 
-  **header压缩**，如上文中所言， 对前面提到过 HTTP1.x 的header带有大量信息，而且每次都要重复发送，HTTP2.0使用encoder来减少需要传输的header大小，通讯双方各自cache一份header fields表，既避免了重复header的传输，又减小了需要传输的大小。
-
-  **服务端推送（server push）** 同SPDY一样，HTTP2.0也具有server push功能。
-
-* 从浏览器输入URL到页面渲染的整个过程  
-  i. DNS解析域名。DNS解析出ip地址，接着应用层会下发数据给传输层，TCP开始三次握手建立TCP连接，建立连接；  
-  ii. 发起 TCP 封装到 应用层的 http 协议生成报文；  
-  iii. 服务端接收到报文后开始解析 http 请求头，在这个过程中，浏览器先根据请求头查看 cache control 与 expires 字段查看是否具有强缓存，如果有强缓存则直接使用缓存，不用到服务端了，如果没有则查看是否具有协商缓存，服务端通过解析请求头的 If-Modified-Since 与 ETag 判断协议缓存是否过期，若未过期，则返回缓存，并修改响应头 ETag 及 Last-Modified 字段；
-  iv. 若两项缓存都没有，则开始解析请求头 MIME（Content-Type） 及请求方式 Type 映射到对应路由（请求地址及请求方式）进行业务处理，对应业务处理完毕后返回响应，这里假设会响应一个HTML文件；
-  v. 浏览器接收到响应后，开始渲染 html 文件，由头部开始向下依次解析，浏览器的 5 个线程开始对应处理解析（GUI 渲染、js 引擎、定时器触发、异步请求、事件触发），首先解析 html 标签的指定语言，其次是 head 标签内的 meta 元标签信息及 css 等，其次到 body 中的内容，最后解析最下面的 js 脚本，将 js 放在最下面是因为 js 可能会阻塞 GUI 渲染的过程（阻碍 DOM 解析），因为 js 中可能会操作 DOM 及出现动态渲染，并且 js 一般较大，为了减少白屏的时间，我们选择先让浏览器渲染出静态可见的内容，然后在最后才去渲染动画等较复杂的行为；
+* Node的Event Loop: 6个阶段
+  - timer阶段：执行到期的setTimeout / setInterval回调
+  - I/O阶段：执行上轮循环残留的callback
+  - idle, prepare
+  - poll：等待回调
+    - 1. 执行回调
+    - 2. 执行定时器
+      - 如有到期的setTimeout / setInterval, 则返回timer阶段
+      - 如有setImmediate则前往check阶段
+  - check
+    - 执行setImmediate
+  - close callbacks
