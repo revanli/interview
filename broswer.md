@@ -110,8 +110,15 @@
 
 
 * cookie, localStorage, sessionStorage, indexDB
+
   | 特性 | cookie | localStorage | sessionStorage | indexDB | 微信storage |  
-  | :-----: | :-----------------: | :------------: | :-------------: | :--------------: | :--------------: |  
+  | :-----: | :-------: | :------: | :-------: | :---------: | :---------: |  
   | 数据生命周期 | 一般由服务器生成，可以设置过期时间 | 除非清理，否则一直存在 | 页面关闭就清理 | 除非清理，否则一直存在 | 除非清理，否则一直存在 |  
   | 数据存储大小 | 4k | 5M | 5M | 无限 | 10M |  
   | 服务端通信 | 在header携带 | 不参与 | 不参与 | 不参与 | 不参与 |  
+
+  |#|语法|效果|
+  |---|----|:---:|
+  |1|`[![weibo-logo]](http://weibo.com/linpiaochen)`|[![weibo-logo]](http://weibo.com/linpiaochen)|
+  |2|`[![](/img/zhihu.png "我的知乎，欢迎关注")][zhihu]`|[![](/img/zhihu.png "我的知乎，欢迎关注")][zhihu]|
+  |3|`[![csdn-logo]][csdn]`|[![csdn-logo]][csdn]|
