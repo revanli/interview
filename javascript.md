@@ -1,7 +1,7 @@
 #### JS基础知识点
 
 * 原始类型有哪几种？null是对象嘛？
-  - 存在6中原始类型：boolean, null, undefined, number, string, symbol
+  - 存在6中原始类型：boolean, null, undefined, number, string, symbol。object不是基本数据类型，是引用数据类型
   - null不是对象类型，虽然typeof null会输出object, 这是因为在js的最初版本中使用的是32位系统，
   为了性能考虑使用低位存储变量的类型信息，000开头代表是对象，然而null表示为全零，所以将它错误的判断为object
 
@@ -10,7 +10,7 @@
   - 函数传参是传递对象指针的副本，如果重新为参数对象赋值另一个对象，则这个参数对象有了一个全新的地址（指针），则两个变量的值就会不同
 
 * typeof是否能正确判断类型？instanceof 能正确判断对象的原理是什么？
-  - typeof对于原始类型来说，除了null都可以显示正确的类型，对于对象来说来说，除了函数都会显示object, 所以typeof并不能判断变量是什么类型
+  - typeof对于原始类型来说，除了null都可以显示正确的类型，对于对象来说，除了函数都会显示object, 所以typeof并不能判断变量是什么类型
   - instanceof 内部机制是通过原型链来判断的, 判断某个对象是否是某个构造函数的实例，判断原始类型的可以借助Symbol.hasInstance 属性判断该对象是否某个构造函数的实例
   ```javascript
   class MyClass {
@@ -25,7 +25,7 @@
 * 类型转换
   - 在js中，类型转换只有3种情况，分别是转换为布尔值，转换为数字，转换为字符串
   ![类型转换表格](./image/transform.png?raw=true '类型转换表格')
-  - 在条件判断时，除了undefined, null, false, NaN, '', 0, -0其他所有值都转为true, 包括所有对象  
+  - 在条件判断时，除了undefined, null, false, NaN, '', 0, -0其他所有值都转为true, 包括所有对象  (undefined == null true 都转为false)
   - -、*、/、%：一律转换为数值后计算
   - +:
     - 数字 + 字符串 = 字符串
@@ -35,11 +35,37 @@
   - [1].toString() === '1'
   - {}.toString() === '[object object]'
   - NaN !== NaN 、+undifined === NaN
+  - [] == ![], [1] == [1](false, 因为引用地址不一样), [] == []（同理）
+
+* [] == ![] // true [链接](https://github.com/jawil/blog/issues/1) 
+  1、！的运算优先级高于== , 先转[]
+  2、对象 == Boolean，根据 js的抽象相等比较算法，[] == ToNumber(Boolean)进行比较
+  3、[] == ToNumber(false)
+  4、对象 == 数字，按照规则，ToPrimitive([]) == 0, ToPrimitive默认调用toString方法，所以'' == 0
+  5、String == number, 变成toNumber('') == 0, 而toNumber('') == 0, 所以0 == 0，结束, true
+
+* 总结的==规则
+  - undefined == null，结果是true。且它俩与所有其他值比较的结果都是false。
+  - String == Boolean，需要两个操作数同时转为Number。
+  - String/Boolean == Number，需要String/Boolean转为Number。
+  - Object == Primitive，需要Object转为Primitive(具体通过valueOf和toString方法)。
+
+* 简单类型放在stack里，对象类型放在heap(堆)里，在stack放着对象类型的**引用变量（指针）**，堆比栈大，栈比堆的运算速度快。
 
 * 类型判断
   - null: String(null)
   - string / number / boolean / undefined / function: typeof
   - Array / Date / RegExp Error: toString后根据[object XXX]判断
+
+* 事件的触发过程是怎么样的？事件代理？  
+  事件触发三个阶段：i. window往事件触发处传播，遇到注册的捕获事件会触发；ii. 传播到事件触发处时触发注册的事件；iii. 从事件触发处往window传播，遇到注册的冒泡事件会触发。如果给一个body的子节点同时注册冒泡和捕获事件，事件触发会按照注册的顺序执行
+
+* DOM事件中的target和currentTarget的区别  
+  event.target是触发事件的元素目标，event.currentTarget是指当前正在处理事件的元素，简单说就是当嵌套div时，点击事件同时注册了多个div，父级div会接受到子div通过事件冒泡上来的事件，此时内部触发这次事件的div就是target，父级div就是currentTarget, 记住触发事件是target，监听事件是currentTarget即可
+
+* 事件委托  
+  是指利用DOM事件冒泡的原理，使子元素的时间冒泡到父级组件时，由父级监听并处理的过程，只需要在父级监听对应子级事件并判断当前触发的节点是否为子级并执行对应业务操作即可，达到只监听一个元素与节点就可以处理每个指定节点对应的操作
+
 
 * this
   - this的优先级：首先，new 的方式优先级最高，接下来是 bind 这些函数，然后是 obj.foo() 这种调用方式，最后是 foo 这种调用方式，同时，箭头函数的 this 一旦被绑定，就不会再被任何方式所改变
@@ -108,13 +134,9 @@
 
 * 什么是原型？如何理解原型链？(补充资料: 王福朋的原型和闭包javascript)
 
-  每个js对象都有__proto__属性，可以通过这个属性找到一个原型对象，原型对象的constructor属性指向构造函数，构造函数又通过prototype属性指向原型
-  （除了Function.prototype.bind()就没有这个属性）
-
+  每个js对象都有__proto__属性，可以通过这个属性找到一个原型对象，原型对象的constructor属性指向构造函数，构造函数又通过prototype属性指向原型（除了Function.prototype.bind()就没有这个属性）
   ![原型链](./image/prototype-chain.png?raw=true '原型链')
-
   原型链就是多个对象通过__proto__的方式连接起来
-
   - Object是所有对象的父级，所有对象可以通过__proto__找到它
   - Function 是所有函数的父级，所有函数都可以通过__proto__找到它
   - 函数的prototype是一个对象
@@ -233,55 +255,56 @@
   模块化的好处：解决命名冲突；提高复用性；提高代码可维护性；  
   - 立即执行函数，通过函数作用域解决命名冲突，污染全局作用域的问题
   - AMD和CMD
-  ```javascript
-  // AMD
-  define(['./a', './b'], function (a, b) {
-    // 加载模块完毕可以使用
-    a.do()
-    b.do()
-  })
-  // CMD
-  define(function(require, exports, module) {
-    // 加载模块
-    var a = require('./a')
-    a.doSomething()
-  })
-  ```
+    - AMD: 采用异步方式加载模块，加载完之后立即执行回调，AMD是依赖前置的，须在头部提前先定义好依赖
+    - CMD: 推崇依赖就近，延迟执行。倾向于在使用过程中提出依赖
+    ```javascript
+    // AMD
+    define(['./a', './b'], function (a, b) {
+      // 加载模块完毕可以使用
+      a.do()
+      b.do()
+    })
+    // CMD
+    define(function(require, exports, module) {
+      // 加载模块
+      var a = require('./a')
+      a.doSomething()
+    })
+    ```
   - CommonJS  
-  require
-  ```javascript
-  var module = require('./a.js')
-  var module = require('./a.js')
-  module.a 
-  // 这里其实就是包装了一层立即执行函数，这样就不会污染全局变量了，
-  // 重要的是 module 这里，module 是 Node 独有的一个变量
-  module.exports = {
-    a: 1
-  }
-  // module 基本实现
-  var module = {
-  id: 'xxxx', // 我总得知道怎么去找到他吧
-  exports: {} // exports 就是个空对象
-  }
-  // 这个是为什么 exports 和 module.exports 用法相似的原因
-  var exports = module.exports 
-  var load = function (module) {
-    // 导出的东西
-    var a = 1
-    module.exports = a
-    return module.exports
-  };
-  // 然后当我 require 的时候去找到独特的
-  // id，然后将要使用的东西用立即执行函数包装下，over
-  ```
+    require
+    ```javascript
+    var module = require('./a.js')
+    module.a 
+    // 这里其实就是包装了一层立即执行函数，这样就不会污染全局变量了，
+    // 重要的是 module 这里，module 是 Node 独有的一个变量
+    module.exports = {
+      a: 1
+    }
+    // module 基本实现
+    var module = {
+    id: 'xxxx', // 我总得知道怎么去找到他吧
+    exports: {} // exports 就是个空对象
+    }
+    // 这个是为什么 exports 和 module.exports 用法相似的原因
+    var exports = module.exports 
+    var load = function (module) {
+      // 导出的东西
+      var a = 1
+      module.exports = a
+      return module.exports
+    };
+    // 然后当我 require 的时候去找到独特的
+    // id，然后将要使用的东西用立即执行函数包装下，over
+    ```
   exports 和 module.exports 享有相同的地址，通过改变对象的属性值可以对两者都起效，但是如果直接对exports赋值会导致两者不再指向供一个内存地址，修改并不会对module.exports起效
 
-  - ES Module（import/exports）
+  * CommonJS与ES Module的区别
   ES Module是原生实现的模块化方案，与CommonJS的区别是  
-  i. CommonJS支持动态导入，也就是require(${path}/xx.js)，后者目前不支持  
-  ii. CommonJS是同步导入，因为在服务端，文件都在本地，同步导入即使卡主主线程影响也不大，后者是异步导入，主要用户浏览器，需要下载文件，如果采用同步导入对渲染会有很大的影响  
-  iii. CommonJS在导出时是值拷贝，就算导出的值变了，导入的值也不会改变，所以要想更新值，必须重新导入一次，但是ES Module采用实时绑定的方式，导入导出的值都指向同一个内存地址，所以导入值会跟随导出值变化  
-  iiii. ES Module会编译成require/exports来执行
+  - CommonJS支持动态导入，也就是require(${path}/xx.js)，后者目前不支持  
+  - CommonJS是同步导入，因为在服务端，文件都在本地，同步导入即使卡主主线程影响也不大，后者是异步导入，主要用户浏览器，需要下载文件，如果采用同步导入对渲染会有很大的影响  
+  - CommonJS在导出时是值拷贝，就算导出的值变了，导入的值也不会改变，所以要想更新值，必须重新导入一次，但是ES Module采用实时绑定的方式，导入导出的值都指向同一个内存地址，所以导入值会跟随导出值变化  
+  - ES Module会编译成require/exports来执行
 
 * proxy可以实现什么功能  
   proxy可以理解成是目标对象的一个代理器，可以在外界对该对象访问的时候进行过滤和改写
@@ -374,7 +397,7 @@
   - 新AST通过babel-generator转换成ES5
 
 * 数组
-  - slice(start, end): 返回截断后的新数组，不改变原数组
+  - slice(\[start\], \[end\]): 返回截断后的新数组，不改变原数组
   - splice(start, number, value...): 返回删除元素组成的数组，value为插入值，改变原数组
 
 * 深克隆
@@ -458,5 +481,94 @@
 ------
 
 * call, apply以及bind函数内部实现是怎么样？
+  ```javascript
+  Function.prototype.myCall = function (context) {
+    if (typeof this !== 'function') {
+      throw new TypeError('Error')
+    }
+    context = context || window
+    context.fn = this
+    // 截取从索引1开始到末尾的参数
+    const args = [...arguments].slice(1)
+    const result = context.fn(...args)
+    delete context.fn
+    return result
+  }
+  ```
+  ```javascript
+  Function.prototype.myApply = function (context) {
+    if (typeof this !== 'function') {
+      throw new TypeError('Error')
+    }
+    context = context || window
+    context.fn = this
+    let result
+    if (arguments[1]) {
+      result = context.fn(...arguments[1])
+    } else {
+      result = context.fn()
+    }
+    delete context.fn
+    return result
+  }
+  ```
+  ```javascript
+  Function.prototype.myBind = function (context) {
+    if (typeof this !== 'function') {
+      throw new TypeError('Error')
+    }
+    const _this = this
+    const args = [...arguments].slice(1)
+    // 返回一个函数
+    return function F () {
+      // 返回一个函数可以new F(), 所以需要判断
+      if (this instanceof F) {
+        // arguments是new F()传入的参数
+        return new _this(...args, ...arguments)
+      }
+      // someFunc.myBind(obj, 1)(1, 2, 3)
+      // arguments = [1, 2, 3]
+      // 需要将两边的参数拼接
+      return _this.apply(context, args.concat(...arguments))
+    } 
+  }
+  ```
 * new
+  new的过程发生4件事
+  - 新生成一个对象
+  - 链接到原型
+  - 绑定this
+  - 返回新对象
+  ```javascript
+  function create() {
+    let obj = {}
+    // 获取构造函数
+    let Con = [].shift.call(arguments)
+    // 设置空对象原型
+    obj.__proto__ = Con.prototype
+    // 绑定this并执行构造函数
+    let result = Con.apply(obj, arguments)
+    // 确保返回值为对象
+    return result instanceof Object ? result : obj
+  }
+  ```
 * instanceof的原理
+  内部机制是通过判断**对象的原型链是不是能找到类型的prototype**
+  ```javascript
+  function myInstanceof(left, right) {
+    // 获取类型的原型
+    let prototype = right.prototype
+    // 获取对象的原型
+    let left = left.__proto__
+    // 循环判断对象的原型是否等于类型的原型，直到对象原型为null
+    while (true) {
+      if (left === null || left === undefined) {
+        return false
+      }
+      if (prototype === left) {
+        return true
+      }
+      left = left.__proto__
+    }
+  }
+  ```
