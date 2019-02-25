@@ -138,3 +138,19 @@
   |http-only|不能通过js访问Cookie,减少XSS攻击|
   |secure|只能在HTTPS的请求中携带|
   |same-site|浏览器跨域不能携带Cookie，减少CSRF攻击|
+
+* 浏览器安全防范知识  
+  - XSS攻击
+    - 定义： 将可执行的代码注入到网页中
+    - 持久性：将攻击代码被服务端写入数据库中
+    - 非持久性：修改URL参数的方式
+    - 防御：转义字符，白名单过滤
+      - CSP： 设置HTTP Header中的Content-Security-Policy
+      - 设置mata标签的方式`\<meta http-equiv="Content-Security-Policy"\>`
+  - CSRF攻击
+    - 定义：跨站请求伪造。原理是攻击者构造一个后端请求地址，诱导用户点击或者通过某些途径自动发起请求
+    - 防御：Get请求不对数据进行修改
+    - 不让第三方网站访问用户Cookie
+    - 阻止第三方网站请求接口
+    - 请求是附带验证信息，比如验证码或者Token
+  - SQL注入

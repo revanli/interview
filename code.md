@@ -389,3 +389,21 @@
   xhr.open("GET", "/api", false)
   xhr.send(null)
   ```
+
+* 闭包实现缓存
+  ```javascript
+  function cache () {
+    var obj = {}
+    return {
+      setCache: function (k, v) {
+        obj[k] = v
+      },
+      getCache: function (k) {
+        return obj[k]
+      }
+    }
+  }
+  var conf = cache()
+  conf.setCache('1', 'aaaa')
+  console.log(conf.getCache('1'))
+  ```

@@ -26,6 +26,28 @@
   - 在js中，类型转换只有3种情况，分别是转换为布尔值，转换为数字，转换为字符串
   ![类型转换表格](./image/transform.png?raw=true '类型转换表格')
   - 在条件判断时，除了undefined, null, false, NaN, '', 0, -0其他所有值都转为true, 包括所有对象  (undefined == null true 都转为false)
+  - 对象转原始类型
+    - 已经是原始类型就不要转换了
+    - 调用x.valueOf(), 如果转换为基础类型，就返回转换的值
+    - 调用x.toString(), 如果转换为基础类型，则返回转换的值
+  ```javascript
+  // add(2)(3)(4)..
+  function add(x) {
+    var sum = x
+    // 递归返回函数
+    var temp = function (y) {
+      sum += y
+      return temp
+    }
+    // 为函数对象添加一个toString方法
+    temp.toString = function () {
+      return sum
+    }
+    return temp
+  }
+  // console.log(add(1)(2)(3));  //6
+  // console.log(add(1)(2)(3)(4));   //10
+  ```
   - -、*、/、%：一律转换为数值后计算
   - +:
     - 数字 + 字符串 = 字符串
