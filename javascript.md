@@ -425,6 +425,7 @@
   ```javascript
   const isType = (obj, type) => {
     if (typeof obj !== 'object') return false;
+    // 可以访问到内部属性[[class]]的值
     const typeString = Object.prototype.toString.call(obj);
     let flag;
     switch (type) {

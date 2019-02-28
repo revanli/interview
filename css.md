@@ -1,7 +1,7 @@
 #### CSS基础知识点  
 
 * 常用布局
-  - 盒模型包括怪异盒模型
+  - 浮动布局
   - 定位布局
     - position: absolute 会将元素转换为块元素
     - 子元素相对于父元素定位：子元素position: absolute或position: fixed，父元素position: relative
@@ -46,10 +46,10 @@
   块级格式化上下文(block formatting context)，是一个独立的渲染区域，让处于BFC内部的元素与外部的元素相互隔离，使内外元素的定位不会相互影响。  
   - 触发条件：
     - 根元素html
-    - position: absolute/fixed
-    - display: inline-block/table
-    - float元素
-    - overflow !== visible
+    - position: absolute / fixed
+    - display: inline-block / table / flex
+    - 浮动元素: float除none以外的值
+    - overflow: overflow除了visible以外的值(hidden, auto, scroll)
   - 规则：
     - 属于同一个BFC的两个相邻Box垂直排列
     - 属于同一个BFC的两个相邻Box的margin会发生重叠
@@ -58,7 +58,7 @@
     - 计算BFC的高度时，浮动子元素也参与计算
     - 文字层不会被浮动层覆盖，环绕于周围
   - 应用：
-    - 阻止margin重叠
+    - 可以避免margin重叠，放在不同的BFC容器中
     - 可以包含浮动元素-清除内部浮动
     - 自适应两栏布局
     - 可以阻止元素被浮动元素覆盖
@@ -91,34 +91,7 @@
 
 
 * 圣杯或者双飞翼（两边固定宽，中间自适应）
-  ```css
-  <style>
-    .left1{
-      float: left;
-      width: 200px;
-      background-color: red;
-      height: 200px;
-    }
-    .right1{
-      float: right;
-      width: 220px;
-      height: 200px;
-      background-color: green;
-    }
-    .middle1{
-      margin-left: 200px;
-      margin-right: 220px;
-      height: 200px;
-      background-color: blue;
-    }
-  </style>
-  <body>
-    <div class="left1"></div>
-    <div class="right1"></div>
-    <div class="middle1"></div>
-  </body>
-  ```
-  解法二：
+  - 圣杯布局
   ```css
   <style>
     body {
@@ -136,6 +109,7 @@
     #container {
       padding-left: 200px;  /* leftContent width */
       padding-right: 150px; /* rightContent width */
+      /* bfc */
       overflow: hidden;
     }
     #container .column {
@@ -164,10 +138,95 @@
   <body>
     <div id="header">#header</div>
     <div id="container">
-      <div id="center" class="column">#center</div>
-      <div id="left" class="column">#left</div>
-      <div id="right" class="column">#right</div>
+      <div id="center" class="column">\#center</div>
+      <div id="left" class="column">\#left</div>
+      <div id="right" class="column">\#right</div>
     </div>
     <div id="footer">#footer</div>
   </body>
   ```
+  - 双飞翼布局
+  - 圣杯布局
+  ```css
+  <style>
+    body {
+      min-width: 600px;
+    }
+    #header, #footer {
+      background: rgba(29, 27, 27, 0.726);
+      text-align: center;
+      height: 60px;
+      line-height: 60px;
+    }
+    #footer {
+      clear: both;
+    }
+    #container {
+      padding-left: 200px;  /* leftContent width */
+      padding-right: 150px; /* rightContent width */
+      /* bfc */
+      overflow: hidden;
+    }
+    #container .column {
+      position: relative;
+      float: left;
+      text-align: center;
+      height: 300px;
+      line-height: 300px;
+    }
+    /* 差异点 */
+    .middle-container {
+      float: left
+      width: 100%;
+      height: 300px;
+      background: rgb(206, 201, 201);
+    }
+    /* 差异点 */
+    #center {
+      margin-left: 200px;
+      margin-right: 150px;
+    }
+    #left {
+      width: 200px;
+      right: 200px;
+      /* 负的中间的div宽度 */
+      margin-left: -100%;
+      background: rgba(95, 179, 235, .9);
+    }
+    #right {
+      width: 150px;           /* rightContent width */
+      margin-right: -150px;   /* rightContent width */
+      background: rgb(231, 105, 2);
+    }
+  </style>
+  <body>
+    <div id="header">\#header</div>
+    <div id="container">
+      <!-- 差异点 -->
+      <div class="middle-container">
+        <div id="center">\#center</div>
+      </div>
+      <div id="left" class="column">\#left</div>
+      <div id="right" class="column">\#right</div>
+    </div>
+    <div id="footer">\#footer</div>
+  </body>
+  ```
+  - 相同点：三栏全部float浮动，在左右两栏加上负margin与中间的div并排，形成三栏布局
+  - 不同点：
+    - 圣杯布局：为了中间div不被遮挡，将中间div设置左右padding-left和padding-right后，将左右两个div用相对布局position: relative并分别配合right和left属性
+    - 双飞翼布局：直接在中部div外部包一层div, 然后在该div内用margin-left和margin-right左右两栏预留位置
+
+* 解决移动端Retina屏幕1px边框问题  
+  在Retina屏幕，屏幕的像素比不是1，就是css像素和设备的像素不是1：1的关系，此时就会出现css像素1px，但是肉眼看上去是2px的问题。
+  - 解决方法：
+    - 使用background渐变来解决
+    ```css
+    @media screen and (-webkit-min-device-pixel-ratio: 2) {
+      .1px-boder {
+        background-image: -webkit-linear-gradient(180deg, transparent 0%, transparent 50%, gray, 100%)
+      }
+    }
+    ```
+    - 使用伪类 + tranform scale: 使用伪类设置宽高模拟边框，然后使用transform: scale(0.5)缩小一倍解决
+    - border-image: 使用图片代替像素变更，因为图片不会缩放，缺点是不同的情况需要准备不同的图片

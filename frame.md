@@ -141,7 +141,7 @@
 细节看博客[深入wepy小程序组件化框架](https://juejin.im/post/5987370e6fb9a03c42430a30)
 
 * 为什么选用wepy?  
-  - 开发风格接近Vue。支持组件Props传值，自定义时间，mixin, computed, slot等
+  - 开发风格接近Vue。支持组件Props传值，自定义事件，mixin, computed, slot等
   - 组件化。组件化开发，解决组件隔离，组件嵌套，组件通信问题
   - NPM。支持第三方NPM资源
   - Promise。解决回调烦恼
