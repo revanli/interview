@@ -1,25 +1,25 @@
 #### 排序
   [阮一峰排序](https://javascript.ruanyifeng.com/library/sorting.html#toc12)
 
-* 排序的通用函数  
-  ```javasctipt
-  function swap(i, j, array) {
-    var temp = array[j]
-    array[j] = array[i]
-    array[i] = temp
-  }
-  ```
+* 五大算法
+  - 贪心算法：局部最优解法
+  - 分治算法：分为多个模块，与原问题性质相同
+  - 动态规划：每个状态都是过去历史的一个总结
+  - 回溯法：发现原先选择不优时，退回重新选择
+  - 分支限界法
 
 * 冒泡排序  
-  冒泡排序的原理：从第一个元素开始，把当前元素和下一个索引元素进行比较，如果当前元素大则交换位置，重复操作直到最后一个元素，则此时最后一个元素就是该数组中最大的数。下一轮重复以上操作
+  冒泡排序的原理：从第一个元素开始，把当前元素和下一个索引元素进行比较，相邻两个数亮亮对比，如果当前元素大则交换位置，重复操作直到最后一个元素，则此时最后一个元素就是该数组中最大的数。下一轮重复以上操作
   ```javascript
-  function bubble(array) {
-    for (var i = array.length - 1; i > 0; i++) {
-      for (var j = 0; j < i; j++) {
-        if (array[j] > array[j+1]) swap(j, j+1, array)
+  function bubbleSort(arr) {
+    for (let i = arr.length; i >= 2; i--) {
+      for (let j = 0; j <= i - 1; j++) {
+        if (arr[j] > arr[j + 1]) {
+          // 解构
+          [arr[j], arr[j + 1]] = [arr[j + 1], arrp[j]]
+        }
       }
     }
-    return array
   }
   ```
   冒泡排序是最容易实现的排序, 最坏的情况是每次都需要交换, 共需遍历并交换将近n²/2次, 时间复杂度为O(n²). 最佳的情况是内循环遍历一次后发现排序是对的, 因此退出循环, 时间复杂度为O(n). 平均来讲, 时间复杂度为O(n²). 由于冒泡排序中只有缓存的temp变量需要内存空间, 因此空间复杂度为常量O(1).
@@ -27,141 +27,88 @@
 
 
 * 插入排序  
-  原理：第一个元素默认是已排序元素，取出下一个元素和当前元素比较，如果当前元素大就交换位置，那么此时的第一个元素就是当前的最小数，所以下次取出操作从第三个元素开始，向前对比，重复操作。
+  原理：第一个元素默认是已排序元素，取出下一个元素和当前元素比较，如果当前元素大就交换位置，那么此时的第一个元素就是当前的最小数，所以下次取出操作从第三个元素开始，向前对比，重复操作。简单来说就是将元素插入到已排序好的数组中
   ```javascript
-  function insertion(array) {
-    for (let i = 1; i < array.length; i++) {
-      for (let j = i - 1; j >= 0 && array[j] > array[j+1]; j--) {
-        swap(j, j+1, array)
+  function insertion(arr) {
+    for (let i = 1; i < arr.length; i++) {  // 外循环从1开始，默认arr[0]是有序段
+      for (let j = i; j > 0; j--) {
+        if (arr[j] < arr[j - 1]) {
+          [arr[j], arr[j - 1]] = [arr[j - 1], arr[j]]
+        } else {
+          break
+        }
       }
     }
-    return array
   }
   ```
   ![insertion](./image/insertion.gif?raw=true '插入排序')
 
 * 选择排序  
-  原理：与冒泡排序类似，依次对相邻的数进行两两比较。一轮比较完毕后，找到最大（或最小值）之后，将其放在正确的位置，其他数的位置不变。
+  原理：默认第一个元素是已经排好序的元素，遍历其他元素和它对比，一轮比较完毕后，找到最大（或最小值）之后，将其与第一个值交换，其他数的位置不变。
   ```javascript
-  function selection(array) {
-    var len = array.length, min;
+  function selection(arr) {
+    var len = arr.length, min;
     for (i = 0; i < len; i++) {
+      // 默认第一个元素是已经排好序的元素，记录最小值的下标
       min = i
 
       for (j = i + 1; j < len; j++) {
-        if (array[j] < array[min]) {
+        if (arr[j] < arr[min]) {
           min = j
         }
       }
 
       if (i != min) {
-        swap(i, min, array)
+        [arr[min], arr[i]] = [arr[i], arr[min]]
       }
     }
     return array
   }
   ```
 
-* 归并排序  
-  原理：将两个已经排序的数组合并，要比从头开始排序所有元素来得快。因此，可以将数组拆开，分成n个只有一个元素的数组，然后不断地两两合并，直到全部排序完成。
-  ```javascript
-  function merge(left, right){
-    var result  = [],
-        il      = 0,
-        ir      = 0;
-
-    while (il < left.length && ir < right.length){
-      if (left[il] < right[ir]){
-        result.push(left[il++]);
-      } else {
-        result.push(right[ir++]);
-      }
-    }
-
-    return result.concat(left.slice(il)).concat(right.slice(ir));
-  }
-
-  function mergeSort(myArray){
-
-    if (myArray.length < 2) {
-        return myArray;
-    }
-
-    var middle = Math.floor(myArray.length / 2),
-        left    = myArray.slice(0, middle),
-        right   = myArray.slice(middle),
-        params = merge(mergeSort(left), mergeSort(right));
-    
-    // 在返回的数组头部，添加两个元素，第一个是0，第二个是返回的数组长度
-    params.unshift(0, myArray.length);
-
-    // splice用来替换数组元素，它接受多个参数，
-    // 第一个是开始替换的位置，第二个是需要替换的个数，后面就是所有新加入的元素。
-    // 因为splice不接受数组作为参数，所以采用apply的写法。
-    // 这一句的意思就是原来的myArray数组替换成排序后的myArray
-    myArray.splice.apply(myArray, params);
-
-	  // 返回排序后的数组
-    return myArray;
-  }
-  ```
-
 * 快速排序  
-  原理：先确定一个“支点”（pivot），将所有小于“支点”的值都放在该点的左侧，大于“支点”的值都放在该点的右侧，然后对左右两侧不断重复这个过程，直到所有排序完成。
-  具体做法：i. 确定“支点”（pivot）。虽然数组中任意一个值都能作为“支点”，但通常是取数组的中间值。   
-  ii. 建立两端的指针。左侧的指针指向数组的第一个元素，右侧的指针指向数组的最后一个元素。  
-  iii. 左侧指针的当前值与“支点”进行比较，如果小于“支点”则指针向后移动一位，否则指针停在原地。  
-  iv. 右侧指针的当前值与“支点”进行比较，如果大于“支点”则指针向前移动一位，否则指针停在原地。  
-  v. 左侧指针的位置与右侧指针的位置进行比较，如果前者大于等于后者，则本次排序结束；否则，左侧指针的值与右侧指针的值相交换。  
-  对左右两侧重复第2至5步。
+  - 选择基准值(base), 原数组长度减一(基准值), 使用splice
+  - 循环原数组, 小的放左边(left数组), 大的放右边(right数组)
+  - concat(left, right)
+  - 递归继续排序left与right
   ```javascript
-  function partition(myArray, left, right) {
-
-    var pivot   = myArray[Math.floor((right + left) / 2)],
-        i       = left,
-        j       = right;
-
-
-    while (i <= j) {
-
-      while (myArray[i] < pivot) {
-        i++;
-      }
-
-      while (myArray[j] > pivot) {
-        j--;
-      }
-
-      if (i <= j) {
-        swap(myArray, i, j);
-        i++;
-        j--;
-      }
+  function quickSort(arr) {
+    if (arr.length <= 1) {
+      return arr  // 递归出口
     }
 
-    return i;
-  }
-
-  function quickSort(myArray, left, right) {
-
-    if (myArray.length < 2) return myArray;
-
-    left = (typeof left !== "number" ? 0 : left);
-    right = (typeof right !== "number" ? myArray.length - 1 : right);
-
-    var index  = partition(myArray, left, right);
-
-    if (left < index - 1) {
-      quickSort(myArray, left, index - 1);
+    var left = [], right = [], current = arr.splice(0, 1) // 取第一个为基准
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] < current) {
+        left.push(arr[i])  // 放在左边
+      } else {
+        right.push(arr[i]) // 放在右边
+      }
     }
-
-    if (index < right) {
-      quickSort(myArray, index, right);
-    }
-
-    return myArray;
+    return quickSort(left).concat(current, quickSort(right))
   }
   ```
+  - 优化：如果排列的数组存在大量重复元素，可以使用三向切分的快速排序提高效率
+  - 即，加多一个数组存储等于基准的元素
+  ```javascript
+  function quick3Sort(arr) {
+    ...
+    for (let i = 0; i < arr.length; i++) {
+      ...
+      else {
+        mid.push(arr[i])
+      }
+    }
+    return quickSort(left).concat(mid, quickSort(right))
+  }
+  ```
+  - 一行代码实现
+  ```javascript
+  function quickSort(arr) {
+    return arr.length <= 1 ? arr : quickSort(arr.slice(1).filter(item => item <= arr[0])).concat(arr[0], quickSort(arr.slice(1).filter(item => item > arr[0])))
+  }
+  ```
+
 
 * 遍历节点
 - 前序遍历
@@ -176,3 +123,5 @@
   - 先访问到最左的子节点
   - 访问相邻的右节点
   - 访问父节点， 回到 1
+
+

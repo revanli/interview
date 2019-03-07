@@ -8,9 +8,9 @@
       - clean-webpack-plugin: 删除之前dist文件夹下的build文件
     - 解决重复性配置：根据webpack-simple模板配置vue-template和脚手架ypweb-cli
       - ypweb-cli: 使用Node进行脚手架开发，使用async/await解决异步回调问题，使用babel编译
-        ![ypweb-cli](./image/ypweb-cli.png?raw=true 'ypweb-cli')  
+        ![ypweb-cli](./image/ypweb-cli.png?raw=true 'ypweb-cli')
 
-  - 业务方向
+  - 业务方面
     - 活动的时效性和用户信息：活动的一个业务需求就是页面在活动的有效期间以及有个人信息的页面在悦跑圈App内才能打开，在Vue的做法是在每个页面的路由守卫beforeRouteEnter函数中请求后端接口做校验，在用React的时候没有这个api, 于是从react-router-dom入手，封装一个组件用来做路由跳转，校验通过就渲染页面并把接口数据传入组件中，不通过则返回到index页面，这样做的好处是不用在每个页面做校验，减少请求次数。
 
     - 企悦跑小程序：由于业务比较复杂，所以使用wepy让小程序支持组件化开发和redux来管理用户状态。

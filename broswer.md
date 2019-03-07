@@ -1,21 +1,25 @@
 #### 浏览器基础知识点
 
-* 跨域  
-  i.JSONP：利用\<script\>标签没有跨域限制的漏洞，通过\<script\>标签指向一个需要访问的地址并提供一个回调函数来接受函数。
-  ii.CORS：服务端设置Access-Control-Allow-Origin就可以开启CORS, 这种方式发送的请求会出现简单请求和复杂请求两种情况。
-  iii. PostMessage 这种方式通常用于获取嵌入页面中的第三方页面数据，一个页面发送消息，另一个页面判断来源并接受消息
-  ```javascript
-  // 发送消息端
-  window.parent.postMessage('message', 'http://test.com')
-  // 接收消息端
-  var mc = new MessageChannel()
-  mc.addEventListener('message', event => {
-    var origin = event.origin || event.originalEvent.origin
-    if (origin === 'http://test.com') {
-      console.log('验证通过')
-    }
-  })
-  ```
+* 跨域
+  - 浏览器端
+    - JSONP: 利用\<script\>标签没有跨域限制的漏洞，通过\<script\>标签指向一个需要访问的地址并提供一个回调函数来接受函数。
+    - postMessage: 这种方式通常用于获取嵌入页面中的第三方页面数据，一个页面发送消息，另一个页面判断来源并接受消息
+    ```javascript
+    // 发送消息端
+    window.parent.postMessage('message', 'http://test.com')
+    // 接收消息端
+    var mc = new MessageChannel()
+    mc.addEventListener('message', event => {
+      var origin = event.origin || event.originalEvent.origin
+      if (origin === 'http://test.com') {
+        console.log('验证通过')
+      }
+    })
+    ```
+  - 服务端
+    - CORS：服务端设置Access-Control-Allow-Origin就可以开启CORS, 这种方式发送的请求会出现简单请求和复杂请求两种情况。
+    - 中间层代理: 比如用node去转发，后端监听特定的请求，然后去请求数据返回给前端
+    - Nginx：nginx反向代理(将其他域名的资源映射成自己)
 
 * 浏览器缓存位置
   - Service Worker 相对于浏览器内置的缓存机制，它可以让我们自由控制缓存的文件、如何匹配缓存、如何读取缓存、并且缓存是持续性的
@@ -30,7 +34,6 @@
     - Last_Modified  表示本地文件最后修改时间，`If-Modified-Since`会将`Last-Modified`的值发送给服务器，询问服务器时候在该日期后有更新，有更新则返回新资源，否则返回304状态码
       - 弊端 1、本地打开缓存文件，即使文件没有修改，也会造成`Last-Modified`被修改 2、`Last-Modified`只能以秒计时
     - ETag  类似与文件指纹，`If-None-Match`会将当前Etag发送给服务端，询问该资源ETag是否有变动，有的话则发新资源回来，优先级高于`Last-Modified`
-
 
 * 插入几万个DOM，如何实现页面不卡顿
   - 分批次部分渲染DOM，requestAnimationFrame的方式去循环的插入DOM
@@ -59,7 +62,6 @@
   ii. 从script标签使用上考虑
   iii. 从css, html的代码书写上考虑
   iv. 从需要下载的内容是否需要在首屏上使用来考虑
-  
  
 * 跨标签页通讯
   - 父页面window.open()和子页面postMessage
@@ -69,7 +71,6 @@
     - 受浏览器隐身模式等的限制
   - 设置共享cookie和不断轮询脏检查(setinterval)
   - 借助服务端或中间层实现
-
 
 * 进程与线程区别？JS单线程带来的好处？  
   进程描述了CPU在运行指令及加载和保存上下文所需的时间，放在应用上来说就代表了一个程序。线程是进程中的更小单位，描述了执行一段指令所需的时间。JS是单线程运行的，可以节省内存，节省上下文切换时间，没有锁的问题的好处，
@@ -120,7 +121,6 @@
   - 闭包： 父级中变量无法释放
   - dom引用：dom元素被删除时，内存中的引用未被正确清空
   可用 chrome 中的 performance 进行内存标记，可视化查看内存的变化情况，找出异常点
-
 
 * cookie, localStorage, sessionStorage, indexDB
 

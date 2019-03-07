@@ -22,6 +22,11 @@
   o instanceof Array
   ```
 
+* Object.prototype.toString.call() 、 instanceof  以及 Array.isArray()
+  - 第一种对所有基本的数据类型都能进行判断，即使是null和undefined
+  - instanceof 判断能否在对象的原型链中找到类型的prototype，只能用来判断对象类型，原始类型不可以
+  - 第三种是ES5新增方法
+
 * 类型转换
   - 在js中，类型转换只有3种情况，分别是转换为布尔值，转换为数字，转换为字符串
   ![类型转换表格](./image/transform.png?raw=true '类型转换表格')
@@ -77,7 +82,7 @@
 * 类型判断
   - null: String(null)
   - string / number / boolean / undefined / function: typeof
-  - Array / Date / RegExp Error: toString后根据[object XXX]判断
+  - Array / Date / RegExp Error: Object.prototype.toString后根据[object XXX]判断
 
 * 事件的触发过程是怎么样的？事件代理？  
   事件触发三个阶段：i. window往事件触发处传播，遇到注册的捕获事件会触发；ii. 传播到事件触发处时触发注册的事件；iii. 从事件触发处往window传播，遇到注册的冒泡事件会触发。如果给一个body的子节点同时注册冒泡和捕获事件，事件触发会按照注册的顺序执行
@@ -294,30 +299,6 @@
     ```
   - CommonJS  
     require
-    ```javascript
-    var module = require('./a.js')
-    module.a 
-    // 这里其实就是包装了一层立即执行函数，这样就不会污染全局变量了，
-    // 重要的是 module 这里，module 是 Node 独有的一个变量
-    module.exports = {
-      a: 1
-    }
-    // module 基本实现
-    var module = {
-    id: 'xxxx', // 我总得知道怎么去找到他吧
-    exports: {} // exports 就是个空对象
-    }
-    // 这个是为什么 exports 和 module.exports 用法相似的原因
-    var exports = module.exports 
-    var load = function (module) {
-      // 导出的东西
-      var a = 1
-      module.exports = a
-      return module.exports
-    };
-    // 然后当我 require 的时候去找到独特的
-    // id，然后将要使用的东西用立即执行函数包装下，over
-    ```
   exports 和 module.exports 享有相同的地址，通过改变对象的属性值可以对两者都起效，但是如果直接对exports赋值会导致两者不再指向供一个内存地址，修改并不会对module.exports起效
 
   * CommonJS与ES Module的区别
@@ -592,5 +573,19 @@
       }
       left = left.__proto__
     }
+  }
+  ```
+
+* 实现Promise.finally
+  - finally方法不管Promise对象最后的状态如何，都会执行的操作
+  - 不接受任何参数
+  - finally本质上是then的特例
+  ```javascript
+  Promise.prototype.finally = function (callback) {
+    let P = this.constructor
+    return this.then(
+      value => P.resolve(callback()).then(() => value),
+      reason => P.resolve(callback()).then(() => { throw reason })
+    )
   }
   ```
