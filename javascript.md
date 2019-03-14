@@ -22,7 +22,7 @@
   o instanceof Array
   ```
 
-* Object.prototype.toString.call() 、 instanceof  以及 Array.isArray()
+* Object.prototype.toString.call() 、 instanceof以及 Array.isArray()
   - 第一种对所有基本的数据类型都能进行判断，即使是null和undefined
   - instanceof 判断能否在对象的原型链中找到类型的prototype，只能用来判断对象类型，原始类型不可以
   - 第三种是ES5新增方法
@@ -98,7 +98,7 @@
   ![this](./image/this.png?raw=true 'this')
 
 * 闭包
-  - 可以简单的理解为：函数A内部有一个函数B，函数B可以访问到函数A中的变量，那么函数B就是闭包, 闭包的意义就是让我们可以间接的访问到函数内的变量
+  - 可以简单的理解为：闭包就是能够读取其他函数内部变量的函数, 闭包的意义就是让我们可以间接的访问到函数内的变量
   - 复杂的说，父函数被销毁的情况下，返回的子函数[[scope]]仍保留了父级的作用域链，可以继续访问父级的变量对象。
 
 * 使用闭包解决var定义函数的问题
@@ -116,7 +116,7 @@
   变量可以通过函数参数形式传入，避免使用默认的[[scope]]向上查找
   ```javascript
   for (var i = 1; i <= 5; i++) {
-    ;(function(j) {
+    (function(j) {
       setTimeout(function timer() {
         console.log(j)
       }, j * 1000)
@@ -478,6 +478,17 @@
     return _clone(parent);
   };
   ```
+  ```javascript
+  // 简单方法
+  function deepClone(obj){
+    var newObj= obj instanceof Array ? [] : {};
+    for(var i in obj){
+       newObj[i]=typeof obj[i]=='object'?  
+       deepClone(obj[i]):obj[i];    
+    }
+    return newObj;
+  }
+  ```
 
 
 #### 进阶知识点和常考面试题
@@ -589,3 +600,17 @@
     )
   }
   ```
+
+* set、weakSet、map、webkMap
+  - set
+    - 成员不能重复
+    - 只有键值，没有键名，有点类似数组
+    - 可以遍历，方法有add、delete、has
+  - weakSet
+    - 成员都是对象
+    - 成员都是弱引用，随时可以消失，可以保存DOM节点
+  - map
+    - 本质上是键值对，类似集合
+    - 可以遍历，方法很多
+  - weakMap
+    - 只接受对象作为键名，不接受其他类型的值作为键名

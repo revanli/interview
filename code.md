@@ -5,8 +5,8 @@
     pending（可转换 fulfilled 或 rejected）  
     fulfilled（不能转换为其他状态）  
     rejected（不能转换为其他状态）  
-    thenable then 是可以串行的链式调用，且具有 onFulfilled 和 onRejected 为可选参数
-
+  - thenable then 是可以串行的链式调用，且具有 onFulfilled 和 onRejected 为可选参数
+  - value 是promise成功状态时的值
   - 错误时必须有抛出异常的原因（reason）
 
 1、Promise声明  
@@ -388,22 +388,4 @@
   }
   xhr.open("GET", "/api", false)
   xhr.send(null)
-  ```
-
-* 闭包实现缓存
-  ```javascript
-  function cache () {
-    var obj = {}
-    return {
-      setCache: function (k, v) {
-        obj[k] = v
-      },
-      getCache: function (k) {
-        return obj[k]
-      }
-    }
-  }
-  var conf = cache()
-  conf.setCache('1', 'aaaa')
-  console.log(conf.getCache('1'))
   ```

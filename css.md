@@ -230,3 +230,8 @@
     ```
     - 使用伪类 + tranform scale: 使用伪类设置宽高模拟边框，然后使用transform: scale(0.5)缩小一倍解决
     - border-image: 使用图片代替像素变更，因为图片不会缩放，缺点是不同的情况需要准备不同的图片
+
+* link标签和import标签的区别
+  - 页面加载时,link会同时被加载，而@import引用的css会等到页面加载结束后才加载
+  - link是html标签没有兼容性，而@import只有IE5以上才能识别
+  - link方式样式的权重高于@import的
