@@ -10,8 +10,10 @@
   - 函数传参是传递对象指针的副本，如果重新为参数对象赋值另一个对象，则这个参数对象有了一个全新的地址（指针），则两个变量的值就会不同
 
 * typeof是否能正确判断类型？instanceof 能正确判断对象的原理是什么？
-  - typeof对于原始类型来说，除了null都可以显示正确的类型，对于对象来说，除了函数都会显示object, 所以typeof并不能判断变量是什么类型
-  - instanceof 内部机制是通过原型链来判断的, 判断某个对象是否是某个构造函数的实例，判断原始类型的可以借助Symbol.hasInstance 属性判断该对象是否某个构造函数的实例
+  - typeof对于原始类型来说，除了null都可以显示正确的类型，对于对象来说，除了函数都会显示object, 所以typeof并不能判断变量是什么类型（js在底层存储变量的时候， 会在变量的机器码的低位1-3位存储其类型信息，000变量、010浮点数、100字符串、110布尔、1：整数、null都为0，undefined: -2^30）
+  - instanceof 内部机制是通过原型链来判断的, 判断某个对象是否是某个构造函数的实例，判断原始类型的可以借助Symbol.hasInstance 属性判断该对象是否某个构造函数的实例.
+
+
   ```javascript
   class MyClass {
     [Symbol.hasInstance](x) {
@@ -22,7 +24,7 @@
   o instanceof Array
   ```
 
-* Object.prototype.toString.call() 、 instanceof以及 Array.isArray()
+* Object.prototype.toString.call()、 instanceof以及 Array.isArray()
   - 第一种对所有基本的数据类型都能进行判断，即使是null和undefined
   - instanceof 判断能否在对象的原型链中找到类型的prototype，只能用来判断对象类型，原始类型不可以
   - 第三种是ES5新增方法
@@ -614,3 +616,5 @@
     - 可以遍历，方法很多
   - weakMap
     - 只接受对象作为键名，不接受其他类型的值作为键名
+
+* base64编码原理

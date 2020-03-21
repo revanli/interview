@@ -235,3 +235,14 @@
   - 页面加载时,link会同时被加载，而@import引用的css会等到页面加载结束后才加载
   - link是html标签没有兼容性，而@import只有IE5以上才能识别
   - link方式样式的权重高于@import的
+
+* img 标签间距问题的原理以及如何解决
+  块级元素包含内联元素如图片文字等时，内联元素默认是和父级元素的baseline（基线）对齐的，而baseline又和父级元素底边有一定的距离，所以导致img标签有间距。  
+  解决方案：
+  垂直间距：  
+  1、img: vertical-align: bottom
+  2、font-size: 0
+  3、line-height: 很小
+  4、display: block
+  水平间距：  tab enter 空格导致的间隙
+  不换行，注释行末的换行符
