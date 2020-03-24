@@ -243,3 +243,62 @@ var addStrings = function(num1, num2) {
     return carry ? '1' + res : res
 };
 ````
+
+````
+有 8 个图片资源的 url，已经存储在数组 urls 中（即urls = [‘http://example.com/1.jpg’, …., ‘http://example.com/8.jpg’]），而且已经有一个函数 function loadImg，输入一个 url 链接，返回一个 Promise，该 Promise 在图片下载完成的时候 resolve，下载失败则 reject。但是我们要求，任意时刻，同时下载的链接数量不可以超过 3 个。请写一段代码实现这个需求，要求尽可能快速地将所有图片下载完成。
+
+现有代码如下：
+  var urls = [
+  'https://www.kkkk1000.com/images/getImgData/getImgDatadata.jpg',
+  'https://www.kkkk1000.com/images/getImgData/gray.gif',
+  'https://www.kkkk1000.com/images/getImgData/Particle.gif',
+  'https://www.kkkk1000.com/images/getImgData/arithmetic.png',
+  'https://www.kkkk1000.com/images/getImgData/arithmetic2.gif',
+  'https://www.kkkk1000.com/images/getImgData/getImgDataError.jpg',
+  'https://www.kkkk1000.com/images/getImgData/arithmetic.gif',
+  'https://www.kkkk1000.com/images/wxQrCode2.png'
+  ];
+  function loadImg(url) {
+      return new Promise((resolve, reject) => {
+          const img = new Image()
+          img.onload = function () {
+              console.log('一张图片加载完成');
+              resolve();
+          }
+          img.onerror = reject
+          img.src = url
+      })
+  };
+
+````
+
+解法：
+```js
+function limitLoad(urls, handler, limit) {
+    // 对数组做一个拷贝
+    const sequence = [].concat(urls)
+    let promises = [];
+
+    //并发请求到最大数
+    promises = sequence.splice(0, limit).map((url, index) => {
+        // 这里返回的 index 是任务在 promises 的脚标，
+        //用于在 Promise.race 之后找到完成的任务脚标
+        return handler(url).then(() => {
+            return index
+        });
+    });
+
+    (async function loop() {
+        let p = Promise.race(promises);
+        for (let i = 0; i < sequence.length; i++) {
+            p = p.then((res) => {
+                promises[res] = handler(sequence[i]).then(() => {
+                    return res
+                });
+                return Promise.race(promises)
+            })
+        }
+    })()
+}
+limitLoad(urls, loadImg, 3)
+````

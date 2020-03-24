@@ -26,5 +26,87 @@
     - 单页面分享失败的问题：在每个页面使用mixins混入分享设置
   
 
+* janos-admin 项目
 
-  
+  - 保证代码质量
+    ESlint 规范保证代码质量, 使用 git hooks 在 husky 或者 pre-commit 在本地提交之前做一次 Lint 校验， lint-staged
+    只校验检查你提交或者你修改部分的内容
+  - 路由懒加载
+    - babel 的插件 `babel-plugin-dynamic-import-node`, 将所有 import 转化为 require()
+  - axios
+    封装 axios ，每一个请求携带 token，response 拦截器，根据code处理不同的状态逻辑
+  - 前后端交互
+    - 跨域问题：cors  Access-Control-Allow-Origin: ''
+    - dev环境：`webpack-dev-server`的`proxy`
+    - 开发环境：nginx 反向代理
+  - mock数据
+    - mockjs
+  - 登录权限
+    - 登录后拿到 token ，前端根据 token 发起一个 user_info 的接口来获取用户的详细信息
+    - 权限校验：通过 token 获取用户对应的 role, 根据用户 role 算出对应权限的路由，然后通过 router.addRoutes 动态挂载这些路由
+    - 后端会验证每一个涉及请求的操作，验证是否有该操作权限
+  - 动态换肤
+  - icon
+    - icon font
+
+* react 动态路由 动态组件
+
+* 前端编辑器的实现
+  - 编辑器生成页面 JSON 数据，服务端负责存取 JSON 数据，渲染时从服务端取数据 JSON 交给前端处理即可。
+
+  - 工程数据接口
+  ```
+  {
+    name: '',
+    description: '',
+    coverImage: '',
+    author: '',
+    pages: []
+  }
+  ```
+  - 页面配置信息
+  ```
+  {
+    name: '',
+    elements: [],
+    commonStyle: {
+
+    },
+    config: {}
+  }
+  ```
+  - 元素配置
+  ```
+  {
+    elName: '',
+    animations: [],
+    commonStyle: {
+      position: 'absolute',
+      size: ,
+      padding: ,
+      margin: ,
+      padding: ,
+      border: ,
+      font: ,
+      background: ,
+      zIndex: ,
+    }
+  }
+  ```
+  - 基础组件： 文字、图片、按钮、表单组件、swiper组件、弹窗组件
+  - 核心： Vue 动态组件 is判断 component name
+  - 组件管理：本地plugin文件管理，也可以上传到局域网 npm 管理
+  - 元素属性编辑：
+    - 公共属性样式编辑：commonStyle 编辑
+    - props属性编辑：1、为每一个prop属性开发一个属性编辑组件 2、获取组件 props 对象 3、通过 key 判断显示哪些属性编辑组件
+  - 元素添加事件
+    - 提供事件mixins混入到组件中，每个事件方法返回promise，元素被点击时按顺序执行事件方法
+  - 页面插入js脚本
+    - 将脚本以 script 标签形式嵌入
+  - 渲染模板
+    - `"vue-cli-service build --mode library --target lib --name page-engine --dest ./src/output/library/h5-swiper ./src/material/h5-swiper/index.js"`, 用 vue-cli 库打包命令将组件打包成库文件，ejs 模板引入该页面组件，配合 json 数据就可以渲染出页面
+
+  ```js
+  <!-- 全局注册组件 -->
+  Vue.component(id, [function | Object])
+  ```

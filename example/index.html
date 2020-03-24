@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>策略模式</title>
+  </head>
+  <body>
+    <form action="https://www.baidu.com" method="post" id="registerForm">
+      请输入用户名<input type="text" name="userName" /><br />
+      请输入密码<input type="password" name="password" /><br />
+      请输入手机号码<input type="text" name="phoneNumber" /><br />
+      <button>提交</button>
+    </form>
+    <script>
+      const registerForm = document.getElementById('registerForm')
+      // // 校验
+      // registerForm.onsubmit = function() {
+      //   if (registerForm.userName.value != '') {
+      //     if (registerForm.password.value.length >= 6) {
+      //       if (/^1[3|4|5|7|8][0-9]{9}$/.test(registerForm.phoneNumber.value)) {
+      //         alert('成功')
+      //       } else {
+      //         alert('请输入正确的的手机号！')
+      //         return false
+      //       }
+      //     } else {
+      //       alert('密码不能小于六位')
+      //       return false
+      //     }
+      //   } else {
+      //     alert('用户名不能为空！')
+      //     return false
+      //   }
+      // }
+      var strategies = {
+        isNonEmpty: function(value, errorMsg) {
+          if (value == '') {
+            return errorMsg
+          }
+        },
+        minLength: function(value, length, errorMsg) {
+          if (value.length < length) {
+            return errorMsg
+          }
+        },
+        isMobile: function(value, errorMsg) {
+          if (!/^1[1|5|8|7|4|3][0-9]{9}$/.test(value)) { //电话号码校验
+            return errorMsg;
+          }
+        }
+      };
+      function validateFunc() {
+        var validator = new Validator()
+        validator.add(registerForm.userName, 'isNonEmpty', '用户名不能为空')
+        validator.add(registerForm.password, 'minLength:6', '密码不能为少于6位')
+        validator.add(registerForm.phoneNumber, 'isMobile', '手机号码格式不正确')
+        var errorMsg = validator.start()
+        return errorMsg
+      }
+      registerForm.onsubmit = function() {
+        var errorMsg = validateFunc()
+        if (errorMsg) {
+          return false
+        }
+      };
+      var Validator = function() {
+        this.cache = []
+      }
+      Validator.prototype.add = function(ele, rule, errorMsg) {
+        var arr = rule.split(':')
+        this.cache.push(function() {
+          var strategy = arr.shift()
+          arr.unshift(ele.value)
+          arr.push(errorMsg)
+          return strategies[strategy].apply(ele.value, arr)
+        })
+      };
+      Validator.prototype.start = function() {
+        for (var i = 0, validatorFunc; validatorFunc = this.cache[i++];) {
+          var msg = validatorFunc()
+          if (msg) {
+            return msg
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -33,7 +33,7 @@
 
 ### webpack优化
   - 代码压缩
-  - tree shaking，移除没有使用的代码
+  - tree shaking，移除没有使用的代码(https://webpack.docschina.org/guides/tree-shaking/)
   - 优化图片，小图可以使用base64写入到文件中
   - 按照路由拆分代码，实现按需加载
   - 为打包出来的文件添加哈希
