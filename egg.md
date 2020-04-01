@@ -1,0 +1,2 @@
+* 怎么编写eggjs的中间件
+  答：eggjs是基于Koa实现的，所以Egg的中间件的形式和Koa的中间件形式是一样的，都是基于洋葱圈模型，每次编写一个中间件，就相当于在洋葱外面包了一层。eggjs约定一个中间件放在app/middleware目录下的单独文件，exports一个普通的function, 接受两个参数：中间件配置项options和当前Application实例app，如果需要在应用中全局使用中间件，则在config.default.js中加入到middleware的数组中，在应用层定义的中间件(app.config.appMiddleware)和框架默认中间件（app.config.coreMiddleware）都会被加载器加载，并挂载到app.middleware上，也可以在router上使用中间件，针对单个路由生效。检验活动和校验UID都是针对单个路由生效的。

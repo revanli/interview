@@ -1,17 +1,10 @@
-* 什么是MVVM?  
-  Vue和React都不是MVVM框架，只是有借鉴MVVM的思路，MVVM采用双向绑定：View的变动会自动反映到ViewModel，反之亦然，Angular和Ember都是MVVM框架。Vue和React借鉴了MVVM的思路， 在MVVM架构中，引入了ViewModel的概念。ViewModel只关心数据和业务的处理，不关心View如何处理数据，在这种情况下，View和Model都可以独立出来，任何一方改变也不一定需要改变另一方，并且可以将一些可复用的逻辑放在ViewModel中，让多个View复用这个ViewModel。以Vue框架举例，ViewModel就是组件的实例。View就是模板，Model的话在引入Vuex的情况下是可以完全和组件分离的。除了这三个部分，MVVM中还引入一个隐式的Binder层，实现View和ViewMode的绑定。以Vue举例，这个隐式的Binder层就是Vue通过解析模板中的插值和指令从而实现View与ViewModel的绑定。对于 MVVM 来说，其实最重要的并不是通过双向绑定或者其他的方式将 View 与 ViewModel 绑定起来，而是通过 ViewModel 将视图中的状态和用户的行为分离出一个抽象，这才是 MVVM 的精髓。
-
-* 实现Vue SSR
-
-* diff算法实现
-
 * Vue compiler实现
   - 总的来说就是将template转化为一个render字符串
   - parse过程。将template利用正则转化成AST抽象语法树
   - optimize过程。标记静态节点，后diff过程跳过静态节点，提升性能
   - generate过程，生成render字符串
 
-* 什么是Virtual DOM? 为什么Virtual DOM比原生DOM快？  
+* 什么是Virtual DOM?  
   - 创建dom树
   - 树的diff，同层对比
     - 没有新的节点，返回
@@ -36,7 +29,7 @@
 
 * Vue和React之间的区别  
   - Vue表单可以使用v-model支持双向绑定，相对于React来说开发上更加方便， 虽然v-model是语法糖，本质上和React写表单的方式没什么区别  
-  - 改变数据方式不同，Vue在底层使用了依赖追踪，页面更新渲染已经是最优，React使用setState来改变状态，并且这个API也有一些坑的地方。并且Vue在底层使用了依赖追踪，页面更新渲染已经是最优了，React还需要用户手动去优化这方面的内容(shouldComponentUpdate)
+  - 改变数据方式不同。Vue在底层使用了依赖追踪，页面更新渲染已经是最优，React使用setState来改变状态，并且这个API也有一些坑的地方，需要用户手动去优化这方面的内容(shouldComponentUpdate)
   - React需要使用JSX，有一定的上手成本，但是可以通过JS来控制页面，更加灵活，颗粒度更小。Vue使用了模板语法，相对于JSX没那么灵活。
 
 * Vue的生命周期函数
@@ -155,32 +148,3 @@
   - Object.defineProperty getter依赖收集。用于依赖变化时，触发属性重新计算
   - 若出现当前computed计算属性依赖其他computed计算属性时，先进行其他的依赖收集
 
-
-细节看博客[深入wepy小程序组件化框架](https://juejin.im/post/5987370e6fb9a03c42430a30)
-
-* 为什么选用wepy?  
-  - 开发风格接近Vue。支持组件Props传值，自定义事件，mixin, computed, slot等
-  - 组件化。组件化开发，解决组件隔离，组件嵌套，组件通信问题
-  - NPM。支持第三方NPM资源
-  - Promise。解决回调烦恼
-  - 优化。对小程序本身的优化，请求队列的处理，生命周期补充，性能优化等
-
-* wepy如何实现单文件组件.wpy编译？  
-  先看整体的流程图
-  ![整体流程图](./image/wepy-cli-compile.png?raw=true 'wepy-cli-compile')  
-  wepy框架通过wepy-cli对.wpy编译，拆解为style, script(+config), template几部分，再分别处理，生成到dist文件对应xxx.wxss, xxx.script, xxx.json, xxx.wxml
-
-* 如何隔离组件作用域  
-  通过组件在不同page的命名作为前缀，并且以父级为起点，依次为$child, 再子级就是$child$child, 依次类推，不同组件在不同的component实例下，data set到page就是带上前缀，同样method也是加入前缀放在Page({})中
-
-* 如何实现组件通信  
-  答：通过编译获取component的路径注入代码，在小程序代码运行时，根据逐层require获取，new component，并记下父级$parent，构建组件树。如果向子组件传props和events?编译时就会收集在template中传入的props和events注入到代码中$props和$events,然后子组件init的时候获取父级$parent的$props并加入前缀$prefix去setData（子组件的在page中的元素表现已经在编译的时候被替换成了$prefix$data的样子），这样就实现了传值。调用$emit触发父组件event，直接寻找父级$parent apply调用相应方法即可。广播事件broadcast就是直接广度优先去遍历组件树就行了。  
-
-* 如何实现加载外部npm包  
-  答：wepy-cli在处理script部分，根据require的内容判断是否是npm内容或者带有npm标识，如果是require('xxx') require('xxx/yyy')的形式获取package.json中的main部分找到引用文件，就去compile该文件（带上npm标识继续去resolveDeps），如果判断不是npm内容修正require即可，带有npm标识最后会打包到npm文件夹。
-
-* 怎么编写eggjs的中间件
-  答：eggjs是基于Koa实现的，所以Egg的中间件的形式和Koa的中间件形式是一样的，都是基于洋葱圈模型，每次编写一个中间件，就相当于在洋葱外面包了一层。eggjs约定一个中间件放在app/middleware目录下的单独文件，exports一个普通的function, 接受两个参数：中间件配置项options和当前Application实例app，如果需要在应用中全局使用中间件，则在config.default.js中加入到middleware的数组中，在应用层定义的中间件(app.config.appMiddleware)和框架默认中间件（app.config.coreMiddleware）都会被加载器加载，并挂载到app.middleware上，也可以在router上使用中间件，针对单个路由生效。检验活动和校验UID都是针对单个路由生效的。
-
-* wepy更新问题
-  - 原理： 使用Angular的脏检查设计
